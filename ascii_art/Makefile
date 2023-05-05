@@ -1,5 +1,5 @@
 CXX := g++
-CFLAGS := -std=c++17 -Wall -Wextra -pedantic -O2 -fsanitize=address
+CFLAGS := -std=c++17 -Wall -Wextra -pedantic -O2 -g
 LIBS := -lpng -ljpeg
 
 INCLUDES := -I/path/to/libpng/include -I/path/to/libjpeg/include
@@ -13,7 +13,9 @@ SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
 OBJECTS := $(SOURCES:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 EXECUTABLE := $(BIN_DIR)/ascii_art
 
-.PHONY: all compile run clean
+
+
+.PHONY: all compile run asan valgrind clean
 
 all: compile run
 
@@ -21,6 +23,16 @@ compile: $(EXECUTABLE)
 
 run: $(EXECUTABLE)
 	./$(EXECUTABLE)
+
+
+ASAN_CFLAG := -fsanitize=address
+asan: CFLAGS += $(ASAN_CFLAG)
+asan: clean $(EXECUTABLE)
+	  ./$(EXECUTABLE)
+
+valgrind: clean $(EXECUTABLE)
+		  valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all ./$(EXECUTABLE)
+
 
 $(EXECUTABLE): $(OBJECTS)
 	mkdir -p $(BIN_DIR)
