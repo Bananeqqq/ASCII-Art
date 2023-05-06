@@ -2,8 +2,8 @@ CXX := g++
 CFLAGS := -std=c++17 -Wall -Wextra -pedantic -O2 -g
 LIBS := -lpng -ljpeg
 
-INCLUDES := -I/path/to/libpng/include -I/path/to/libjpeg/include
-LIB_DIRS := -L/path/to/libpng/lib -L/path/to/libjpeg/lib
+INCLUDES := -I/usr/include -I/usr/include/SDL2
+LIB_DIRS := -L/usr/lib -L/usr/lib/x86_64-linux-gnu
 
 SRC_DIR := src
 BUILD_DIR := build
