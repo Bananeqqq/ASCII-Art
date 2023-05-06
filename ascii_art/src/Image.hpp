@@ -6,13 +6,17 @@
 
 class Image {
 public:
-    Image(unsigned int width, unsigned int height, int num_channels) : width(width), height(height), data(width * height * num_channels) {}
+    Image(unsigned int width, unsigned int height, int num_channels) : width(width), height(height), num_channels(num_channels) {}
     virtual ~Image() = default;
     virtual bool load(const std::string& filename) = 0;
+
+    std::string imgToAscii(float scaleFactor) const;
+
 
 protected:
     unsigned int width;
     unsigned int height;
+    int num_channels;
     std::vector<unsigned char> data;
 };
 
