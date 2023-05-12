@@ -1,8 +1,7 @@
 #include "ImagePNG.hpp"
 #include "png.h"
 
-
-bool ImagePNG::load(const std::string& filename) {
+bool ImagePNG::load(const std::string& filename, bool inverted) {
 
     FILE *file = fopen(filename.c_str(), "rb");
     if (!file) {
@@ -42,8 +41,9 @@ bool ImagePNG::load(const std::string& filename) {
             break;
         case PNG_COLOR_TYPE_GRAY:
         case PNG_COLOR_TYPE_GRAY_ALPHA: //Gray -> RGBA
-            if (png_get_bit_depth(png, info) < 8 && color_type == PNG_COLOR_TYPE_GRAY)
+            if (png_get_bit_depth(png, info) < 8 && color_type == PNG_COLOR_TYPE_GRAY) {
                 png_set_expand_gray_1_2_4_to_8(png);
+            }
             png_set_gray_to_rgb(png);
             png_set_add_alpha(png, 0xFF, PNG_FILLER_AFTER);
             break;
@@ -65,9 +65,29 @@ bool ImagePNG::load(const std::string& filename) {
     for (unsigned int i = 0; i < height; ++i) {
         row_pointers[i] = &row[i * width * 4];
     }
-
     png_read_image(png, row_pointers.data());
-    data.assign(row.begin(), row.end());
+
+    data.clear();
+    data.reserve(width * height);
+    for (size_t i = 0; i < row.size(); i += 4) {
+        unsigned char   r = row[i],
+                        g = row[i + 1],
+                        b = row[i + 2],
+                        a = row[i + 3];
+        if (inverted) {
+            r = 255 - r;
+            g = 255 - g;
+            b = 255 - b;
+            if (a == 0) {
+                a = 255;
+            }
+        }
+
+        double gray_scale = (0.212671 * r / 255.0 ) + (0.715160f * g / 255.0) + (0.072169 * b / 255.0);
+        gray_scale *= a / 255.0;
+        data.push_back(static_cast<unsigned char>(gray_scale * 255));
+    }
+
 
     png_destroy_read_struct(&png, &info, nullptr);
     fclose(file);

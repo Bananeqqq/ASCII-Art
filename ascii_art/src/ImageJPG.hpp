@@ -5,8 +5,8 @@
 
 class ImageJPG : public Image {
 public:
-    ImageJPG(int width = 0, int height = 0) : Image(width, height, 3) {}
-    bool load(const std::string& filename) override;
+    ImageJPG(int width = 0, int height = 0) : Image(width, height) {}
+    bool load(const std::string& filename, bool inverted) override;
 };
 
 
