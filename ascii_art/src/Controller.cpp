@@ -20,7 +20,7 @@ Controller::Controller(int argc, char *argv[]) : config(argc, argv){
 
 void Controller::run() {
     loadImages();
-    applyFilters();
+//    applyFilters();
     convertToAscii();
     outputImages();
 }
@@ -39,18 +39,38 @@ void Controller::loadImages() {
             return;
         }
         std::cout << "loading: " << img.image_path << std::endl;
-        images.back().first->load(img.image_path);
+        images.back().first->load(img.image_path, img.invert);
+        std::cout << "loaded: " << img.image_path << std::endl;
     }
 }
 
 void Controller::applyFilters() {
     std::cout << "applying filters" << std::endl;
     std::vector<Filter*> filters;
+    for (auto &image : images) {
 
+        if (image.second.rotate) {
+            filters.push_back(new FilterRotate());
+        }
+
+        if (image.second.flip_horizontal || image.second.flip_vertical) {
+            filters.push_back(new FilterFlip());
+        }
+
+        for (Filter* filter : filters) {
+            filter->apply(image);
+        }
+
+        for (Filter* filter : filters) {
+            delete filter;
+        }
+        filters.clear();
+    }
 }
 
 
 void Controller::convertToAscii() {
+    std::cout << "converting to ascii" << std::endl;
     for (auto &image : images){
         image.first->imgToAscii(image.second.scale, image.second.charset, image.second.brightness);
     }
