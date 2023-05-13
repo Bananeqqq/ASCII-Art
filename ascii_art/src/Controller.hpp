@@ -9,9 +9,9 @@ class Controller {
 public:
     Controller(int argc, char *argv[]);
     void run();
-    void loadImages();
-    void convertToAscii();
+    bool loadImages();
     void applyFilters();
+    bool convertToAscii();
     void outputImages();
 
 private:

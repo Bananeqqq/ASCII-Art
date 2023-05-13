@@ -8,25 +8,32 @@
 #include "FilterFlip.hpp"
 #include "FilterRotate.hpp"
 
-Controller::Controller(int argc, char *argv[]) : config(argc, argv){
-    if (!config.parseCommandLine()){
-        std::cout << "Controller: Error while parsing" << std::endl;
-        return;
-    }
-    std::cout << "----Controlleros----" << std::endl;
+Controller::Controller(int argc, char *argv[])
+    try : config(argc, argv) {
+        config.parseCommandLine();
 
-    run();
-}
+        std::cout << "----Controlleros----" << std::endl;
+        run();
+    }
+    catch (std::exception &e) {
+    }
+
 
 void Controller::run() {
-    loadImages();
+    if (!loadImages()){
+        std::cout << "Controller: Error while loading images" << std::endl;
+        return;
+    }
 //    applyFilters();
-    convertToAscii();
+    if (!convertToAscii()) {
+        std::cout << "Controller: Error while converting to ascii" << std::endl;
+        return;
+    }
     outputImages();
 }
 
 
-void Controller::loadImages() {
+bool Controller::loadImages() {
     for (auto &img : config.getImages()){
         if (img.image_path.find(".png") != std::string::npos){
             images.emplace_back(std::make_unique<ImagePNG>(), img);
@@ -36,12 +43,12 @@ void Controller::loadImages() {
         }
         else {
             std::cout << "Controller: Error while loading images" << std::endl;
-            return;
+            return false;
         }
-        std::cout << "loading: " << img.image_path << std::endl;
         images.back().first->load(img.image_path, img.invert);
         std::cout << "loaded: " << img.image_path << std::endl;
     }
+    return true;
 }
 
 void Controller::applyFilters() {
@@ -69,30 +76,41 @@ void Controller::applyFilters() {
 }
 
 
-void Controller::convertToAscii() {
+bool Controller::convertToAscii() {
     std::cout << "converting to ascii" << std::endl;
     for (auto &image : images){
+        if (image.second.charset.empty()){
+            std::cout << "Controller: Error while converting to ascii, charset not found." << std::endl;
+            return false;
+        }
         image.first->imgToAscii(image.second.scale, image.second.charset, image.second.brightness);
     }
+    return true;
 }
 
 
 void Controller::outputImages() {
-    std::cout << "output" << std::endl;
     std::string out = config.getOutputType();
     std::unique_ptr<Output> output;
 
-    if (out == "screen"){
+    if (out == "screen") {
         output = std::make_unique<OutputPresentation>();
     }
-    else if (out == "file"){
+    else if (out == "file") {
         output = std::make_unique<OutputFile>();
     }
-    else {
-        for (auto &image : images){
+    else if (out == "console"){
+        for (auto &image : images) {
             std::cout << image.first->ascii_image << std::endl;
         }
     }
+    else {
+        std::cout << "Controller: Error while outputting images, output type not found." << std::endl;
+        return;
+    }
 
-    output->output(images, config.getOutputPath());
+
+    if (output) {
+        output->output(images, config.getOutputPath());
+    }
 }
