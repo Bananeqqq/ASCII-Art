@@ -64,9 +64,10 @@ SDL_Texture* Image::createTexture(SDL_Renderer* renderer, TTF_Font* font, int fo
     SDL_RenderClear(renderer);
 
     int i = 0;
+    double multiply_factor = (double)full_width/ surfaces[0]->w;
     for (SDL_Surface* surface : surfaces){
         SDL_Texture *lineTexture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_Rect dstRect = {0, i*font_size, surface->w, surface->h};
+        SDL_Rect dstRect = {0, i*font_size, static_cast<int>(surface->w*multiply_factor), surface->h};
         i++;
 
         SDL_RenderCopy(renderer, lineTexture, NULL, &dstRect);
