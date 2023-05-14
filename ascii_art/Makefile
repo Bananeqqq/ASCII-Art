@@ -1,6 +1,6 @@
 CXX := g++
-CFLAGS := -std=c++17 -Wall -Wextra -pedantic -O2 -g
-LIBS := -lpng -ljpeg
+CFLAGS := -std=c++17 `sdl2-config --libs --cflags` -Wall -Wextra -pedantic -O2 -g -D _GLIBCXX_DEBUG
+LIBS := -lpng -ljpeg `sdl2-config --libs` -lSDL2_ttf -lSDL2_image
 
 INCLUDES := -I/usr/include -I/usr/include/SDL2
 LIB_DIRS := -L/usr/lib -L/usr/lib/x86_64-linux-gnu
@@ -28,10 +28,6 @@ run: $(EXECUTABLE)
 ASAN_CFLAG := -fsanitize=address
 asan: CFLAGS += $(ASAN_CFLAG)
 asan: clean $(EXECUTABLE)
-	  ./$(EXECUTABLE)
-
-valgrind: clean $(EXECUTABLE)
-		  valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all ./$(EXECUTABLE)
 
 
 $(EXECUTABLE): $(OBJECTS)

@@ -4,6 +4,7 @@
 #include "ImageJPG.hpp"
 #include "OutputPresentation.hpp"
 #include "OutputFile.hpp"
+#include "OutputImage.hpp"
 #include <algorithm>
 #include "FilterFlip.hpp"
 #include "FilterRotate.hpp"
@@ -52,7 +53,6 @@ bool Controller::loadImages() {
 }
 
 void Controller::applyFilters() {
-    std::cout << "applying filters" << std::endl;
     std::vector<Filter*> filters;
     for (auto &image : images) {
 
@@ -77,7 +77,6 @@ void Controller::applyFilters() {
 
 
 bool Controller::convertToAscii() {
-    std::cout << "converting to ascii" << std::endl;
     for (auto &image : images){
         if (image.second.charset.empty()){
             std::cout << "Controller: Error while converting to ascii, charset not found." << std::endl;
@@ -104,6 +103,9 @@ void Controller::outputImages() {
             std::cout << image.first->ascii_image << std::endl;
         }
     }
+    else if (out == "image"){
+        output = std::make_unique<OutputImage>();
+    }
     else {
         std::cout << "Controller: Error while outputting images, output type not found." << std::endl;
         return;
@@ -111,6 +113,10 @@ void Controller::outputImages() {
 
 
     if (output) {
-        output->output(images, config.getOutputPath());
+        bool o = output->output(images, config.getOutputPath());
+        if (!o) {
+            std::cout << "Controller: Error while outputting images" << std::endl;
+            return;
+        }
     }
 }

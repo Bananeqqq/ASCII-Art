@@ -37,7 +37,7 @@ ConfigManager::ConfigManager(int argc, char *argv[]) :  output_console(false), o
             }
             continue;
         }
-        else if (arg ==  "--console"){
+        else if (arg == "--console"){
             output_console = true;
             outCnt++;
             if (outCnt > 1) {
@@ -53,6 +53,14 @@ ConfigManager::ConfigManager(int argc, char *argv[]) :  output_console(false), o
             }
             continue;
         }
+        else if (arg == "--image"){
+            output_image = true;
+            outCnt++;
+            if (outCnt > 1) {
+                throw std::invalid_argument("Multiple output options specified.");
+            }
+            continue;
+        }
 
         if (arg.size() > 5 && (arg.substr(arg.size() - 4) == ".jpg" || arg.substr(arg.size() - 4) == ".png")) {
             if (!std::filesystem::exists(arg)) {
@@ -62,7 +70,8 @@ ConfigManager::ConfigManager(int argc, char *argv[]) :  output_console(false), o
             current_img.image_path = arg;
             images.push_back(current_img);
             image_positions.push_back(args.size());
-        }else{
+        }
+        else{
             args.push_back(arg);
         }
     }
@@ -91,66 +100,60 @@ bool ConfigManager::parseConfig(const std::string &cfg_path, Img &img) {
         if (std::getline(is_line, key, '=')) {
             std::string value;
             if (std::getline(is_line, value)) {
-                try{
-                    value.erase(std::find_if(value.rbegin(), value.rend(), [](unsigned char ch) {
-                        return !std::isspace(ch);
-                    }).base(), value.end());
-                    if (key == "brightness") {
-                        img.brightness += std::stod(value, &num);
-                        if (num < value.size()){
-                            throw std::invalid_argument("conversion");
-                        }
-                    }
-                    else if (key == "flip") {
-                        if (value == "horizontal") {
-                            img.flip_horizontal = !img.flip_horizontal;
-                        }
-                        else if (value == "vertical") {
-                            img.flip_vertical = !img.flip_vertical;
-                        }
-                    }
-                    else if (key == "rotate") {
-                        img.rotate = ((img.rotate + std::stoi(value, &num)) % 360 + 360) % 360;
-                        if (num < value.size()){
-                            throw std::invalid_argument("conversion");
-                        }
-                    }
-                    else if (key == "invert") {
-                        img.invert = (value == "true");
-                    }
-                    else if (key == "scale") {
-                        img.scale *= std::stod(value, &num);
-                        if (num < value.size()){
-                            throw std::invalid_argument("conversion");
-                        }
-                        if (img.scale < 0.1 || img.scale > 10){
-                            throw std::invalid_argument("scale");
-                        }
-                    }
-                    else if (key == "ascii") {
-                        ascii_count++;
-                        if (ascii_count > 1){
-                            throw std::invalid_argument("ascii");
-                        }
-                        if (!std::filesystem::exists(value)){
-                            std::cout << "CM config ascii not exists:" << value <<":x" << std::endl;
-                            throw std::invalid_argument("ascii");
-                        }
-                        std::ifstream charset_file(value);
-                        if (!charset_file.is_open()) {
-                            std::cout << "Error: Unable to open charset file '" << value << "'." << std::endl;
-                            throw std::invalid_argument("ascii");
-                        }
-                        std::getline(charset_file, img.charset);
-                        charset_file.close();
-                    }
-                    else{
-                        throw std::invalid_argument("key");
+                value.erase(std::find_if(value.rbegin(), value.rend(), [](unsigned char ch) {
+                    return !std::isspace(ch);
+                }).base(), value.end());
+                if (key == "brightness") {
+                    img.brightness += std::stod(value, &num);
+                    if (num < value.size()){
+                        throw std::invalid_argument("conversion");
                     }
                 }
-                catch(std::invalid_argument& e){
-                    std::cout << "CM catch parseCfg, Error: Invalid config file." << std::endl;
-                    return false;
+                else if (key == "flip") {
+                    if (value == "horizontal") {
+                        img.flip_horizontal = !img.flip_horizontal;
+                    }
+                    else if (value == "vertical") {
+                        img.flip_vertical = !img.flip_vertical;
+                    }
+                }
+                else if (key == "rotate") {
+                    img.rotate = ((img.rotate + std::stoi(value, &num)) % 360 + 360) % 360;
+                    if (num < value.size()){
+                        throw std::invalid_argument("conversion");
+                    }
+                }
+                else if (key == "invert") {
+                    img.invert = (value == "true");
+                }
+                else if (key == "scale") {
+                    img.scale *= std::stod(value, &num);
+                    if (num < value.size()){
+                        throw std::invalid_argument("conversion");
+                    }
+                    if (img.scale < 0.1 || img.scale > 10){
+                        throw std::invalid_argument("scale");
+                    }
+                }
+                else if (key == "ascii") {
+                    ascii_count++;
+                    if (ascii_count > 1){
+                        throw std::invalid_argument("ascii");
+                    }
+                    if (!std::filesystem::exists(value)){
+                        std::cout << "CM config ascii not exists:" << value <<":x" << std::endl;
+                        throw std::invalid_argument("ascii");
+                    }
+                    std::ifstream charset_file(value);
+                    if (!charset_file.is_open()) {
+                        std::cout << "Error: Unable to open charset file '" << value << "'." << std::endl;
+                        throw std::invalid_argument("ascii");
+                    }
+                    std::getline(charset_file, img.charset);
+                    charset_file.close();
+                }
+                else {
+                    throw std::invalid_argument("key");
                 }
             }
         }
@@ -161,7 +164,7 @@ bool ConfigManager::parseConfig(const std::string &cfg_path, Img &img) {
 }
 
 void ConfigManager::parseCommandLine() {
-    size_t siz = 0;
+    size_t siz;
     if (is_config_for_all){
         for (auto &current_config : images){
             if (!parseConfig(global_cfg, current_config)){
@@ -181,83 +184,77 @@ void ConfigManager::parseCommandLine() {
             }
             for (size_t i = image_positions[idx]; i < siz; i++) {
                 size_t num;
-                try{
-                    if (args[i] == "--conf"){
-                        if (i+1 >= siz){
-                            std::cout << "Error: No config file path provided." << std::endl;
-                            return;
-                        }
-                        std::string cfg_path(args[i+1]);
-                        if (!std::filesystem::exists(cfg_path)) {
-                            std::cout << "CM parseCommandLine: Error: Config file does not exist: " << cfg_path  << std::endl;
-                            return;
-                        }
-                        if (!parseConfig(cfg_path, current_config)) {
-                            std::cout << "CM parseCL: Error: Invalid config file." << std::endl;
-                            return;
-                        }
-                        ++i;
-                        continue;
+                if (args[i] == "--conf"){
+                    if (i+1 >= siz){
+                        std::cout << "Error: No config file path provided." << std::endl;
+                        return;
                     }
-                    else if (args[i] == "--ascii") {
-
-                        if (i + 1 >= siz) {
-                            std::cout << "Error: No charset file path provided." << std::endl;
-                            return;
-                        }
-                        std::ifstream charset_file(args[i+1]);
-                        if (!charset_file.is_open()) {
-                            std::cout << "Error: Unable to open charset file: " << args[i] << "'." << std::endl;
-                            return;
-                        }
-                        std::getline(charset_file, current_config.charset);
-                        charset_file.close();
-                        ++i;
-                        continue;
+                    std::string cfg_path(args[i+1]);
+                    if (!std::filesystem::exists(cfg_path)) {
+                        std::cout << "CM parseCommandLine: Error: Config file does not exist: " << cfg_path  << std::endl;
+                        return;
                     }
-                    else if (args[i] == "--brightness" && i + 1 < siz) {
-                        current_config.brightness += std::stod(args[i + 1], &num);
-                        if (num < args[i + 1].size()){
-                            throw std::invalid_argument("brightness conversion");
-                        }
-                        ++i;
-                        continue;
+                    if (!parseConfig(cfg_path, current_config)) {
+                        std::cout << "CM parseCL: Error: Invalid config file." << std::endl;
+                        return;
                     }
-                    else if (args[i] == "--scale" && i + 1 < siz) {
-                        double scale_value = std::stod(args[i + 1], &num);
-                        if (num < args[i + 1].size()){
-                            throw std::invalid_argument("scale conversion");
-                        }
-                        if (scale_value < 0 || scale_value > 10){
-                            throw std::invalid_argument("scale out of range");
-                        }
-                        current_config.scale *= scale_value;
-                        ++i;
-                        continue;
-                    }
-                    else if (args[i] == "--invert") {
-                        current_config.invert = !current_config.invert;
-                    }
-                    else if (args[i] == "--rotate" && i + 1 < siz) {
-                        current_config.rotate = ((current_config.rotate + std::stoi(args[i + 1], &num)) % 360 + 360) % 360;
-                        if (num < args[i + 1].size()){
-                            throw std::invalid_argument("rotate conversion");
-                        }
-                        ++i;
-                        continue;
-                    }
-                    else if (args[i] == "--flip-horizontal") {
-                        current_config.flip_horizontal = !current_config.flip_horizontal;
-                    }
-                    else if (args[i] == "--flip-vertical") {
-                        current_config.flip_vertical = !current_config.flip_vertical;
-                    }
-                    else {
-                        throw std::out_of_range("CM parseCommandLine: Error: Invalid argument: " + args[i]);
-                    }
+                    ++i;
+                    continue;
                 }
-                catch (std::out_of_range &e){
-                    throw std::out_of_range(std::string("err cm pcl: ") + e.what());
+                else if (args[i] == "--ascii") {
+                    if (i + 1 >= siz) {
+                        std::cout << "Error: No charset file path provided." << std::endl;
+                        return;
+                    }
+                    std::ifstream charset_file(args[i+1]);
+                    if (!charset_file.is_open()) {
+                        std::cout << "Error: Unable to open charset file: " << args[i] << "'." << std::endl;
+                        return;
+                    }
+                    std::getline(charset_file, current_config.charset);
+                    charset_file.close();
+                    ++i;
+                    continue;
+                }
+                else if (args[i] == "--brightness" && i + 1 < siz) {
+                    current_config.brightness += std::stod(args[i + 1], &num);
+                    if (num < args[i + 1].size()){
+                        throw std::invalid_argument("brightness conversion");
+                    }
+                    ++i;
+                    continue;
+                }
+                else if (args[i] == "--scale" && i + 1 < siz) {
+                    double scale_value = std::stod(args[i + 1], &num);
+                    if (num < args[i + 1].size()){
+                        throw std::invalid_argument("scale conversion");
+                    }
+                    if (scale_value < 0 || scale_value > 10){
+                        throw std::invalid_argument("scale out of range");
+                    }
+                    current_config.scale *= scale_value;
+                    ++i;
+                    continue;
+                }
+                else if (args[i] == "--invert") {
+                    current_config.invert = !current_config.invert;
+                }
+                else if (args[i] == "--rotate" && i + 1 < siz) {
+                    current_config.rotate = ((current_config.rotate + std::stoi(args[i + 1], &num)) % 360 + 360) % 360;
+                    if (num < args[i + 1].size()){
+                        throw std::invalid_argument("rotate conversion");
+                    }
+                    ++i;
+                    continue;
+                }
+                else if (args[i] == "--flip-horizontal") {
+                    current_config.flip_horizontal = !current_config.flip_horizontal;
+                }
+                else if (args[i] == "--flip-vertical") {
+                    current_config.flip_vertical = !current_config.flip_vertical;
+                }
+                else {
+                    throw std::out_of_range("CM parseCommandLine: Error: Invalid argument: " + args[i]);
                 }
             }
             idx++;
@@ -278,10 +275,15 @@ std::vector<Img> ConfigManager::getImages() const {
 std::string ConfigManager::getOutputType() const {
     if (output_console){
         return "console";
-    }else if (output_screen){
+    }
+    else if (output_screen){
         return "screen";
-    }else if (output_file){
+    }
+    else if (output_file){
         return "file";
+    }
+    else if (output_image){
+        return "image";
     }
     return "";
 }

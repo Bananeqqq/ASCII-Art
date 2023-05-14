@@ -6,7 +6,7 @@
 struct Img {
     std::string image_path;
     std::string charset;
-    double brightness = 0.0;
+    double brightness = 2;
     double scale = 1.0;
     bool invert = false;
     int rotate = 0;

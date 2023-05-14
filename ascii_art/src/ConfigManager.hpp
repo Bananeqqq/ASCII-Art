@@ -2,7 +2,6 @@
 #define ASCII_ART_CONFIGMANAGER_HPP
 
 #include <string>
-#include <unordered_map>
 #include <vector>
 #include "ImgOptions.hpp"
 
@@ -24,6 +23,7 @@ private:
     bool output_console;
     bool output_screen;
     bool output_file;
+    bool output_image;
     std::vector<size_t> image_positions;
     bool is_config_for_all;
     std::string global_cfg;
