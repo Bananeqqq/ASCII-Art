@@ -12,5 +12,6 @@ struct Img {
     int rotate = 0;
     bool flip_horizontal = false;
     bool flip_vertical = false;
+    bool fancy = false;
 };
 #endif //ASCII_ART_IMGOPTIONS_HPP
