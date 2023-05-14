@@ -14,32 +14,28 @@ bool OutputImage::output(const std::vector<std::pair<std::unique_ptr<Image>, Img
         return false;
     }
 
-    int flags = IMG_INIT_JPG | IMG_INIT_PNG;
-    int init = IMG_Init(flags);
-    if ((init & flags) != flags) {
+    if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) {
         TTF_Quit();
         SDL_Quit();
         return false;
     }
 
-    int font_size = 1; //if i'll find a way to calculate width for larger font, then i'll change it
-    TTF_Font* font = TTF_OpenFont("CourierPrime.ttf", font_size);
-
     SDL_Window* window = SDL_CreateWindow("ASCII-ART", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_HIDDEN);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    TTF_Font* font = TTF_OpenFont("CourierPrime.ttf", 1);
+
     for (const auto& image: images){
+        double max_f_size; int font_size = 1;
+        if (image.second.fancy) {
+            max_f_size = std::min(16000.0 / image.first->width * image.second.scale, 16000.0 / image.first->height * image.second.scale);
+            font_size = std::max(1.0, std::min(15.0*image.second.scale, max_f_size));
+        }
+        TTF_SetFontSize(font,font_size);
+
+
         SDL_RenderClear(renderer);
-        std::string image_output_name;
-        std::string extension = image.second.image_path.substr(image.second.image_path.size() - 4);
-        bool is_png = extension == ".png";
-
-        if (is_png) {
-            image_output_name = image.second.image_path.substr(0, image.second.image_path.size() - 4) + "_ascii.png";
-        }
-        else {
-            image_output_name = image.second.image_path.substr(0, image.second.image_path.size() - 4) + "_ascii.jpg";
-        }
-
+        std::string image_output_name = image.second.image_path.substr(0, image.second.image_path.size() - 4) + "_ascii.png";
+        const char* out = image_output_name.c_str();
 
         SDL_Texture* texture = image.first->createTexture(renderer, font, font_size);
         if (!window || !renderer || !font || texture == nullptr) {
@@ -57,11 +53,8 @@ bool OutputImage::output(const std::vector<std::pair<std::unique_ptr<Image>, Img
         SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
         SDL_RenderReadPixels(renderer, NULL, surface->format->format, surface->pixels, surface->pitch);
 
-
-        const char* out = image_output_name.c_str();
-        is_png ? IMG_SavePNG(surface, out) : IMG_SaveJPG(surface, out, 100);
+        IMG_SavePNG(surface, out);
         std::cout << "Image saved to " << image_output_name << std::endl;
-
 
         SDL_FreeSurface(surface);
         SDL_DestroyTexture(texture);
