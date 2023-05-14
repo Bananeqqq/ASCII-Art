@@ -36,13 +36,10 @@ bool OutputPresentation::output(const std::vector<std::pair<std::unique_ptr<Imag
 
     std::vector<SDL_Texture*> textures;
     for (const auto& image: images){
-        double max_f_size; int font_size;
+        double max_f_size; int font_size = 1;
         if (image.second.fancy) {
             max_f_size = std::min(16000.0 / image.first->width * image.second.scale, 16000.0 / image.first->height * image.second.scale);
             font_size = std::max(1.0, std::min(15.0*image.second.scale, max_f_size));
-        }
-        else {
-            font_size = 1;
         }
         TTF_SetFontSize(font,font_size);
 
