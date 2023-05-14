@@ -152,6 +152,9 @@ bool ConfigManager::parseConfig(const std::string &cfg_path, Img &img) {
                     std::getline(charset_file, img.charset);
                     charset_file.close();
                 }
+                else if (key == "fancy") {
+                    img.fancy = (value == "true");
+                }
                 else {
                     throw std::invalid_argument("key");
                 }
@@ -252,6 +255,9 @@ void ConfigManager::parseCommandLine() {
                 }
                 else if (args[i] == "--flip-vertical") {
                     current_config.flip_vertical = !current_config.flip_vertical;
+                }
+                else if (args[i] == "--fancy"){
+                    current_config.fancy = !current_config.fancy;
                 }
                 else {
                     throw std::out_of_range("CM parseCommandLine: Error: Invalid argument: " + args[i]);
