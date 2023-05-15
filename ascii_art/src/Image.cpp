@@ -34,11 +34,11 @@ void Image::imgToAscii(const double scaleFactor, const std::string charset, doub
 }
 
 
-SDL_Texture* Image::createTexture(SDL_Renderer* renderer, TTF_Font* font, int font_size) const {
+SDL_Texture* Image::createTexture(SDL_Renderer* renderer, TTF_Font* font, int font_size, double scale) const {
     SDL_Color textColor = {255, 255, 255, 255};
 
-    int full_width = width * font_size;
-    int full_height = height * font_size;
+    int full_width = width * font_size * scale;
+    int full_height = height * font_size * scale;
 
     std::vector<SDL_Surface*> surfaces;
     const char* text = ascii_image.c_str();

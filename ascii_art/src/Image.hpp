@@ -15,7 +15,7 @@ public:
     virtual bool load(const std::string& filename, bool inverted) = 0;
 
     void imgToAscii(const double scaleFactor, const std::string charset, double brightness);
-    SDL_Texture* createTexture(SDL_Renderer* renderer, TTF_Font* font, int font_size) const;
+    SDL_Texture* createTexture(SDL_Renderer* renderer, TTF_Font* font, int font_size, double scale) const;
 
     unsigned int width;
     unsigned int height;

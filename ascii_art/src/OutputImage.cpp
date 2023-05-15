@@ -27,7 +27,7 @@ bool OutputImage::output(const std::vector<std::pair<std::unique_ptr<Image>, Img
     for (const auto& image: images){
         double max_f_size; int font_size = 1;
         if (image.second.fancy) {
-            max_f_size = std::min(16000.0 / image.first->width * image.second.scale, 16000.0 / image.first->height * image.second.scale);
+            max_f_size = std::min(16000.0 / (image.first->width * image.second.scale), 16000.0 / (image.first->height * image.second.scale));
             font_size = std::max(1.0, std::min(15.0*image.second.scale, max_f_size));
         }
         TTF_SetFontSize(font,font_size);
@@ -37,7 +37,7 @@ bool OutputImage::output(const std::vector<std::pair<std::unique_ptr<Image>, Img
         std::string image_output_name = image.second.image_path.substr(0, image.second.image_path.size() - 4) + "_ascii.png";
         const char* out = image_output_name.c_str();
 
-        SDL_Texture* texture = image.first->createTexture(renderer, font, font_size);
+        SDL_Texture* texture = image.first->createTexture(renderer, font, font_size, image.second.scale);
         if (!window || !renderer || !font || texture == nullptr) {
             TTF_CloseFont(font);
             SDL_DestroyRenderer(renderer);
