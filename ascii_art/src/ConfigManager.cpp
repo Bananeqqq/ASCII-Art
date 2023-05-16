@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <algorithm>
 
-ConfigManager::ConfigManager(int argc, char *argv[]) :  output_console(false), output_screen(false), output_file(false){
+ConfigManager::ConfigManager(int argc, char *argv[]) : output_file_path(""), output_console(false), output_screen(false), output_file(false){
     int outCnt = 0, i = 1;
     if (argc < 3) { //program_name, image, output_type
         throw std::invalid_argument("Not enough arguments.");
@@ -161,7 +161,6 @@ void ConfigManager::parseCommandLine() {
     size_t siz, idx = 0;
     for (auto &current_config : images){
 
-
         if (idx+1 >= image_positions.size()){
             siz = args.size();
         }
@@ -169,53 +168,46 @@ void ConfigManager::parseCommandLine() {
             siz = image_positions[idx+1];
         }
 
-        if (!checkArgs(current_config, 0, image_positions[0])){ //global config loading
-            return;
-        }
-        if (!checkArgs(current_config, image_positions[idx], siz)){ //local config loading
-            return;
-        }
-
+        checkArgs(current_config, 0, image_positions[0]); //global config loading
+        checkArgs(current_config, image_positions[idx], siz); //local config loading
         idx++;
     }
 }
 
-bool ConfigManager::checkArgs(Img& current_config, size_t min, size_t max) {
+void ConfigManager::checkArgs(Img& current_config, size_t min, size_t max) {
     for (size_t i = min; i < max; i++) { //specific image config
         size_t num;
         if (args[i] == "--conf"){
             if (i+1 >= max){
-                std::cout << "Error: No config file path provided." << std::endl;
-                return false;
+                throw std::invalid_argument("CM checkArgs: No config file path provided.");
             }
             std::string cfg_path(args[i+1]);
             if (!std::filesystem::exists(cfg_path)) {
-                std::cout << "CM parseCommandLine: Error: Config file does not exist: " << cfg_path  << std::endl;
-                return false;
+                throw std::invalid_argument("CM checkArgs: Config file does not exist.");
             }
             if (!parseConfigFile(cfg_path, current_config)) {
-                std::cout << "CM parseCL: Error: Invalid config file." << std::endl;
-                return false;
+                throw std::invalid_argument("CM checkArgs: Config file parsing failed.");
             }
             ++i;
             continue;
         }
         else if (args[i] == "--ascii") {
             if (i + 1 >= max) {
-                std::cout << "Error: No charset file path provided." << std::endl;
-                return false;
+                throw std::invalid_argument("CM checkArgs: No charset file path provided.");
             }
             std::ifstream charset_file(args[i+1]);
             if (!charset_file.is_open()) {
-                std::cout << "Error: Unable to open charset file: " << args[i] << "'." << std::endl;
-                return false;
+                throw std::invalid_argument("CM checkArgs: Unable to open charset file.");
             }
             std::getline(charset_file, current_config.charset);
             charset_file.close();
             ++i;
             continue;
         }
-        else if (args[i] == "--brightness" && i + 1 < max) {
+        else if (args[i] == "--brightness") {
+            if (i+1>=max){
+                throw std::invalid_argument("CM checkArgs: No brightness value provided.");
+            }
             current_config.brightness += std::stod(args[i + 1], &num);
             if (num < args[i + 1].size()){
                 throw std::invalid_argument("brightness conversion");
@@ -223,7 +215,10 @@ bool ConfigManager::checkArgs(Img& current_config, size_t min, size_t max) {
             ++i;
             continue;
         }
-        else if (args[i] == "--scale" && i + 1 < max) {
+        else if (args[i] == "--scale") {
+            if (i+1>=max){
+                throw std::invalid_argument("CM checkArgs: No scale value provided.");
+            }
             double scale_value = std::stod(args[i + 1], &num);
             if (num < args[i + 1].size()){
                 throw std::invalid_argument("scale conversion");
@@ -238,7 +233,10 @@ bool ConfigManager::checkArgs(Img& current_config, size_t min, size_t max) {
         else if (args[i] == "--invert") {
             current_config.invert = !current_config.invert;
         }
-        else if (args[i] == "--rotate" && i + 1 < max) {
+        else if (args[i] == "--rotate") {
+            if (i+1>=max){
+                throw std::invalid_argument("CM checkArgs: No rotate value provided.");
+            }
             current_config.rotate = ((current_config.rotate + std::stoi(args[i + 1], &num)) % 360 + 360) % 360;
             if (num < args[i + 1].size()){
                 throw std::invalid_argument("rotate conversion");
@@ -259,7 +257,6 @@ bool ConfigManager::checkArgs(Img& current_config, size_t min, size_t max) {
             throw std::invalid_argument("CM parseCommandLine: Error: Invalid argument: " + args[i]);
         }
     }
-    return true;
 }
 
 

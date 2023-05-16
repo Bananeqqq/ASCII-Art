@@ -26,10 +26,7 @@ void Controller::run() {
         return;
     }
 //    applyFilters();
-    if (!convertToAscii()) {
-        std::cout << "Controller: Error while converting to ascii" << std::endl;
-        return;
-    }
+    convertToAscii();
     outputImages();
 }
 
@@ -76,7 +73,7 @@ void Controller::applyFilters() {
 }
 
 
-bool Controller::convertToAscii() {
+void Controller::convertToAscii() {
     for (auto &image : images){
         if (image.second.charset.empty()){
             image.second.charset = " .'`^,:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
@@ -84,7 +81,6 @@ bool Controller::convertToAscii() {
         }
         image.first->imgToAscii(image.second.scale, image.second.charset, image.second.brightness);
     }
-    return true;
 }
 
 

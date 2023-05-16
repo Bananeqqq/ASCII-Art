@@ -41,7 +41,9 @@ bool OutputPresentation::output(const std::vector<std::pair<std::unique_ptr<Imag
             max_f_size = std::min(16000.0 / (image.first->width * image.second.scale), 16000.0 / (image.first->height * image.second.scale));
             font_size = std::max(1.0, std::min(15.0*image.second.scale, max_f_size));
         }
-        TTF_SetFontSize(font,font_size);
+//        TTF_SetFontSize(font,font_size);
+        TTF_CloseFont(font);
+        font = TTF_OpenFont("CourierPrime.ttf", font_size);
 
         SDL_Texture* texture = image.first->createTexture(renderer, font, font_size, image.second.scale);
         if (texture == nullptr) {

@@ -30,8 +30,9 @@ bool OutputImage::output(const std::vector<std::pair<std::unique_ptr<Image>, Img
             max_f_size = std::min(16000.0 / (image.first->width * image.second.scale), 16000.0 / (image.first->height * image.second.scale));
             font_size = std::max(1.0, std::min(15.0*image.second.scale, max_f_size));
         }
-        TTF_SetFontSize(font,font_size);
-
+//        TTF_SetFontSize(font,font_size);
+        TTF_CloseFont(font);
+        font = TTF_OpenFont("CourierPrime.ttf", font_size);
 
         SDL_RenderClear(renderer);
         std::string image_output_name = image.second.image_path.substr(0, image.second.image_path.size() - 4) + "_ascii.png";

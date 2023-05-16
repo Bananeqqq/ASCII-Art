@@ -11,7 +11,7 @@ public:
     void run();
     bool loadImages();
     void applyFilters();
-    bool convertToAscii();
+    void convertToAscii();
     void outputImages();
 
 private:

@@ -17,7 +17,7 @@ public:
 
 private:
     bool parseConfigFile(const std::string &cfg_path, Img &img);
-    bool checkArgs(Img& current_config, size_t min, size_t max);
+    void checkArgs(Img& current_config, size_t min, size_t max);
     std::vector<Img> images;
     std::vector<std::string> args;
     std::string output_file_path;
