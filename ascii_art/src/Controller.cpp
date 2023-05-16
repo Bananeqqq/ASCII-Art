@@ -25,7 +25,7 @@ void Controller::run() {
         std::cout << "Controller: Error while loading images" << std::endl;
         return;
     }
-//    applyFilters();
+    applyFilters();
     convertToAscii();
     outputImages();
 }

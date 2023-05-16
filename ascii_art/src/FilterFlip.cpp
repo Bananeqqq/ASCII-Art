@@ -1,8 +1,4 @@
 #include "FilterFlip.hpp"
-#include <algorithm>
-#include <sstream>
-#include <deque>
-#include <numeric>
 
 
 void FilterFlip::apply(std::pair<std::unique_ptr<Image>, Img> &image) {
