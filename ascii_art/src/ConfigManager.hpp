@@ -16,7 +16,8 @@ public:
     std::string getOutputType() const;
 
 private:
-    bool parseConfig(const std::string &cfg_path, Img &img);
+    bool parseConfigFile(const std::string &cfg_path, Img &img);
+    bool checkArgs(Img& current_config, size_t min, size_t max);
     std::vector<Img> images;
     std::vector<std::string> args;
     std::string output_file_path;
@@ -25,8 +26,6 @@ private:
     bool output_file;
     bool output_image;
     std::vector<size_t> image_positions;
-    bool is_config_for_all;
-    std::string global_cfg;
 
 };
 

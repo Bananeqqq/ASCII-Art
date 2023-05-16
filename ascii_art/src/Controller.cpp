@@ -79,8 +79,8 @@ void Controller::applyFilters() {
 bool Controller::convertToAscii() {
     for (auto &image : images){
         if (image.second.charset.empty()){
-            std::cout << "Controller: Error while converting to ascii, charset not found." << std::endl;
-            return false;
+            image.second.charset = " .'`^,:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+            std::cout << "No charset specified, using default: \"" << image.second.charset << "\""<< std::endl;
         }
         image.first->imgToAscii(image.second.scale, image.second.charset, image.second.brightness);
     }

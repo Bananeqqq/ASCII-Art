@@ -5,19 +5,10 @@
 #include <filesystem>
 #include <algorithm>
 
-ConfigManager::ConfigManager(int argc, char *argv[]) :  output_console(false), output_screen(false), output_file(false), is_config_for_all(false){
+ConfigManager::ConfigManager(int argc, char *argv[]) :  output_console(false), output_screen(false), output_file(false){
     int outCnt = 0, i = 1;
-    if (argc < 3) {
+    if (argc < 3) { //program_name, image, output_type
         throw std::invalid_argument("Not enough arguments.");
-    }
-    else if (std::string(argv[1]) == "--conf"){ //global config, for all images
-        is_config_for_all = true;
-        std::string cfg_path(argv[2]);
-        if (!std::filesystem::exists(cfg_path)) {
-           throw std::invalid_argument("Config file does not exist.");
-        }
-        global_cfg = cfg_path;
-        i = 3;
     }
 
     Img current_img;
@@ -84,7 +75,7 @@ ConfigManager::ConfigManager(int argc, char *argv[]) :  output_console(false), o
 }
 
 
-bool ConfigManager::parseConfig(const std::string &cfg_path, Img &img) {
+bool ConfigManager::parseConfigFile(const std::string &cfg_path, Img &img) {
     std::ifstream config_file(cfg_path);
     if (!config_file.is_open()) {
         std::cout << "Error: Cannot open config file." << std::endl;
@@ -167,105 +158,108 @@ bool ConfigManager::parseConfig(const std::string &cfg_path, Img &img) {
 }
 
 void ConfigManager::parseCommandLine() {
-    size_t siz;
-    if (is_config_for_all){
-        for (auto &current_config : images){
-            if (!parseConfig(global_cfg, current_config)){
-                std::cout << "CM parseCommandLine: Error: Invalid config file." << std::endl;
-                return;
+    size_t siz, idx = 0;
+    for (auto &current_config : images){
+
+
+        if (idx+1 >= image_positions.size()){
+            siz = args.size();
+        }
+        else{
+            siz = image_positions[idx+1];
+        }
+
+        if (!checkArgs(current_config, 0, image_positions[0])){ //global config loading
+            return;
+        }
+        if (!checkArgs(current_config, image_positions[idx], siz)){ //local config loading
+            return;
+        }
+
+        idx++;
+    }
+}
+
+bool ConfigManager::checkArgs(Img& current_config, size_t min, size_t max) {
+    for (size_t i = min; i < max; i++) { //specific image config
+        size_t num;
+        if (args[i] == "--conf"){
+            if (i+1 >= max){
+                std::cout << "Error: No config file path provided." << std::endl;
+                return false;
             }
+            std::string cfg_path(args[i+1]);
+            if (!std::filesystem::exists(cfg_path)) {
+                std::cout << "CM parseCommandLine: Error: Config file does not exist: " << cfg_path  << std::endl;
+                return false;
+            }
+            if (!parseConfigFile(cfg_path, current_config)) {
+                std::cout << "CM parseCL: Error: Invalid config file." << std::endl;
+                return false;
+            }
+            ++i;
+            continue;
+        }
+        else if (args[i] == "--ascii") {
+            if (i + 1 >= max) {
+                std::cout << "Error: No charset file path provided." << std::endl;
+                return false;
+            }
+            std::ifstream charset_file(args[i+1]);
+            if (!charset_file.is_open()) {
+                std::cout << "Error: Unable to open charset file: " << args[i] << "'." << std::endl;
+                return false;
+            }
+            std::getline(charset_file, current_config.charset);
+            charset_file.close();
+            ++i;
+            continue;
+        }
+        else if (args[i] == "--brightness" && i + 1 < max) {
+            current_config.brightness += std::stod(args[i + 1], &num);
+            if (num < args[i + 1].size()){
+                throw std::invalid_argument("brightness conversion");
+            }
+            ++i;
+            continue;
+        }
+        else if (args[i] == "--scale" && i + 1 < max) {
+            double scale_value = std::stod(args[i + 1], &num);
+            if (num < args[i + 1].size()){
+                throw std::invalid_argument("scale conversion");
+            }
+            if (scale_value < 0 || scale_value > 10){
+                throw std::invalid_argument("scale out of range");
+            }
+            current_config.scale *= scale_value;
+            ++i;
+            continue;
+        }
+        else if (args[i] == "--invert") {
+            current_config.invert = !current_config.invert;
+        }
+        else if (args[i] == "--rotate" && i + 1 < max) {
+            current_config.rotate = ((current_config.rotate + std::stoi(args[i + 1], &num)) % 360 + 360) % 360;
+            if (num < args[i + 1].size()){
+                throw std::invalid_argument("rotate conversion");
+            }
+            ++i;
+            continue;
+        }
+        else if (args[i] == "--flip-horizontal") {
+            current_config.flip_horizontal = !current_config.flip_horizontal;
+        }
+        else if (args[i] == "--flip-vertical") {
+            current_config.flip_vertical = !current_config.flip_vertical;
+        }
+        else if (args[i] == "--fancy"){
+            current_config.fancy = !current_config.fancy;
+        }
+        else {
+            throw std::invalid_argument("CM parseCommandLine: Error: Invalid argument: " + args[i]);
         }
     }
-    else{
-        size_t idx = 0;
-        for (auto &current_config : images){
-            if (idx+1 >= image_positions.size()){
-                siz = args.size();
-            }
-            else{
-                siz = image_positions[idx+1];
-            }
-            for (size_t i = image_positions[idx]; i < siz; i++) {
-                size_t num;
-                if (args[i] == "--conf"){
-                    if (i+1 >= siz){
-                        std::cout << "Error: No config file path provided." << std::endl;
-                        return;
-                    }
-                    std::string cfg_path(args[i+1]);
-                    if (!std::filesystem::exists(cfg_path)) {
-                        std::cout << "CM parseCommandLine: Error: Config file does not exist: " << cfg_path  << std::endl;
-                        return;
-                    }
-                    if (!parseConfig(cfg_path, current_config)) {
-                        std::cout << "CM parseCL: Error: Invalid config file." << std::endl;
-                        return;
-                    }
-                    ++i;
-                    continue;
-                }
-                else if (args[i] == "--ascii") {
-                    if (i + 1 >= siz) {
-                        std::cout << "Error: No charset file path provided." << std::endl;
-                        return;
-                    }
-                    std::ifstream charset_file(args[i+1]);
-                    if (!charset_file.is_open()) {
-                        std::cout << "Error: Unable to open charset file: " << args[i] << "'." << std::endl;
-                        return;
-                    }
-                    std::getline(charset_file, current_config.charset);
-                    charset_file.close();
-                    ++i;
-                    continue;
-                }
-                else if (args[i] == "--brightness" && i + 1 < siz) {
-                    current_config.brightness += std::stod(args[i + 1], &num);
-                    if (num < args[i + 1].size()){
-                        throw std::invalid_argument("brightness conversion");
-                    }
-                    ++i;
-                    continue;
-                }
-                else if (args[i] == "--scale" && i + 1 < siz) {
-                    double scale_value = std::stod(args[i + 1], &num);
-                    if (num < args[i + 1].size()){
-                        throw std::invalid_argument("scale conversion");
-                    }
-                    if (scale_value < 0 || scale_value > 10){
-                        throw std::invalid_argument("scale out of range");
-                    }
-                    current_config.scale *= scale_value;
-                    ++i;
-                    continue;
-                }
-                else if (args[i] == "--invert") {
-                    current_config.invert = !current_config.invert;
-                }
-                else if (args[i] == "--rotate" && i + 1 < siz) {
-                    current_config.rotate = ((current_config.rotate + std::stoi(args[i + 1], &num)) % 360 + 360) % 360;
-                    if (num < args[i + 1].size()){
-                        throw std::invalid_argument("rotate conversion");
-                    }
-                    ++i;
-                    continue;
-                }
-                else if (args[i] == "--flip-horizontal") {
-                    current_config.flip_horizontal = !current_config.flip_horizontal;
-                }
-                else if (args[i] == "--flip-vertical") {
-                    current_config.flip_vertical = !current_config.flip_vertical;
-                }
-                else if (args[i] == "--fancy"){
-                    current_config.fancy = !current_config.fancy;
-                }
-                else {
-                    throw std::out_of_range("CM parseCommandLine: Error: Invalid argument: " + args[i]);
-                }
-            }
-            idx++;
-        }
-    }
+    return true;
 }
 
 
