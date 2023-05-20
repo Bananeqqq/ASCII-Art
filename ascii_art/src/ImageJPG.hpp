@@ -2,7 +2,9 @@
 #define ASCII_ART_IMAGEJPG_HPP
 #include "Image.hpp"
 
-
+/**
+ * @brief Class for loading JPG images
+ */
 class ImageJPG : public Image {
 public:
     ImageJPG(int width = 0, int height = 0) : Image(width, height) {}

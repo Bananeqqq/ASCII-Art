@@ -264,7 +264,6 @@ std::string ConfigManager::getOutputPath() const {
     return output_file_path;
 }
 
-
 std::vector<Img> ConfigManager::getImages() const {
     return images;
 }

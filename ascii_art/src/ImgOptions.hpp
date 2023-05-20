@@ -3,6 +3,9 @@
 
 #include <string>
 
+/**
+ * @brief Struct for storing the configuration of an image
+ */
 struct Img {
     std::string image_path;
     std::string charset;
