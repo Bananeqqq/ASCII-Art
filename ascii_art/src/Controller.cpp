@@ -79,6 +79,10 @@ void Controller::convertToAscii() {
             image.second.charset = " .'`^,:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
             std::cout << "No charset specified, using default: \"" << image.second.charset << "\""<< std::endl;
         }
+        if (image.second.scale < 0.0 || image.second.scale > 10.0){
+            std::cout << "Invalid scale, using default: 1.0" << std::endl;
+            image.second.scale = 1.0;
+        }
         image.first->imgToAscii(image.second.scale, image.second.charset, image.second.brightness);
     }
 }

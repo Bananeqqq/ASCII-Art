@@ -75,7 +75,7 @@ ConfigManager::ConfigManager(int argc, char *argv[]) : output_file_path(""), out
 }
 
 
-bool ConfigManager::parseConfigFile(const std::string &cfg_path, Img &img) {
+bool ConfigManager::parseConfigFile(const std::string &cfg_path, Img &current_config) {
     std::ifstream config_file(cfg_path);
     if (!config_file.is_open()) {
         std::cout << "Error: Cannot open config file." << std::endl;
@@ -86,6 +86,17 @@ bool ConfigManager::parseConfigFile(const std::string &cfg_path, Img &img) {
     size_t num;
     int ascii_count = 0;
     while (std::getline(config_file, line)) {
+        line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](unsigned char ch) {
+            return !std::isspace(ch);
+        }));
+        line.erase(std::find_if(line.rbegin(), line.rend(), [](unsigned char ch) {
+            return !std::isspace(ch);
+        }).base(), line.end());
+
+        if (line.empty()){
+            continue;
+        }
+
         std::istringstream is_line(line);
         std::string key;
         if (std::getline(is_line, key, '=')) {
@@ -95,41 +106,44 @@ bool ConfigManager::parseConfigFile(const std::string &cfg_path, Img &img) {
                     return !std::isspace(ch);
                 }).base(), value.end());
                 if (key == "brightness") {
-                    img.brightness += std::stod(value, &num);
+                    current_config.brightness += std::stod(value, &num);
                     if (num < value.size()){
                         throw std::invalid_argument("conversion");
                     }
                 }
                 else if (key == "flip") {
                     if (value == "horizontal") {
-                        img.flip_horizontal = !img.flip_horizontal;
+                        current_config.flip_horizontal = !current_config.flip_horizontal;
                     }
                     else if (value == "vertical") {
-                        img.flip_vertical = !img.flip_vertical;
+                        current_config.flip_vertical = !current_config.flip_vertical;
+                    }
+                    else {
+                        throw std::invalid_argument("Invalid flip value.");
                     }
                 }
                 else if (key == "rotate") {
-                    img.rotate = ((img.rotate + std::stoi(value, &num)) % 360 + 360) % 360;
+                    current_config.rotate = ((current_config.rotate + std::stoi(value, &num)) % 360 + 360) % 360;
                     if (num < value.size()){
                         throw std::invalid_argument("conversion");
                     }
                 }
                 else if (key == "invert") {
-                    img.invert = (value == "true");
+                    if (value != "true" && value != "false"){
+                        throw std::invalid_argument("Invalid invert value.");
+                    }
+                    current_config.invert = (value == "true");
                 }
                 else if (key == "scale") {
-                    img.scale *= std::stod(value, &num);
+                    current_config.scale *= std::stod(value, &num);
                     if (num < value.size()){
-                        throw std::invalid_argument("conversion");
-                    }
-                    if (img.scale < 0.1 || img.scale > 10){
-                        throw std::invalid_argument("scale");
+                        throw std::invalid_argument("Error while converting scale.");
                     }
                 }
                 else if (key == "ascii") {
                     ascii_count++;
                     if (ascii_count > 1){
-                        throw std::invalid_argument("ascii");
+                        throw std::invalid_argument("Multiple ascii values.");
                     }
                     if (!std::filesystem::exists(value)){
                         std::cout << "CM config ascii not exists:" << value <<":x" << std::endl;
@@ -140,15 +154,20 @@ bool ConfigManager::parseConfigFile(const std::string &cfg_path, Img &img) {
                         std::cout << "Error: Unable to open charset file '" << value << "'." << std::endl;
                         throw std::invalid_argument("ascii");
                     }
-                    std::getline(charset_file, img.charset);
+                    std::getline(charset_file, current_config.charset);
                     charset_file.close();
                 }
                 else if (key == "fancy") {
-                    img.fancy = (value == "true");
+                    if (value != "true" && value != "false"){
+                        throw std::invalid_argument("Invalid fancy value.");
+                    }
+                    current_config.fancy = (value == "true");
                 }
                 else {
-                    throw std::invalid_argument("key");
+                    throw std::invalid_argument("Invalid config key.");
                 }
+            }else {
+                throw std::invalid_argument("No value for config key.");
             }
         }
     }
@@ -222,9 +241,6 @@ void ConfigManager::checkArgs(Img& current_config, size_t min, size_t max) {
             double scale_value = std::stod(args[i + 1], &num);
             if (num < args[i + 1].size()){
                 throw std::invalid_argument("scale conversion");
-            }
-            if (scale_value < 0 || scale_value > 10){
-                throw std::invalid_argument("scale out of range");
             }
             current_config.scale *= scale_value;
             ++i;

@@ -54,7 +54,7 @@ private:
      * @param img Img object to store the parsed configurations
      * @return true if the config file was parsed successfully
      */
-    bool parseConfigFile(const std::string &cfg_path, Img &img);
+    bool parseConfigFile(const std::string &cfg_path, Img &current_config);
 
 
     /**
