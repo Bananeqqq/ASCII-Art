@@ -49,6 +49,7 @@ bool OutputImage::output(const std::vector<std::pair<std::unique_ptr<Image>, Img
             TTF_CloseFont(font);
             SDL_DestroyRenderer(renderer);
             SDL_DestroyWindow(window);
+            IMG_Quit();
             TTF_Quit();
             SDL_Quit();
             return false;
@@ -65,6 +66,7 @@ bool OutputImage::output(const std::vector<std::pair<std::unique_ptr<Image>, Img
             SDL_DestroyTexture(texture);
             SDL_DestroyRenderer(renderer);
             SDL_DestroyWindow(window);
+            IMG_Quit();
             TTF_Quit();
             SDL_Quit();
             return false;
@@ -79,6 +81,7 @@ bool OutputImage::output(const std::vector<std::pair<std::unique_ptr<Image>, Img
             SDL_DestroyTexture(texture);
             SDL_DestroyRenderer(renderer);
             SDL_DestroyWindow(window);
+            IMG_Quit();
             TTF_Quit();
             SDL_Quit();
             return false;
@@ -92,6 +95,7 @@ bool OutputImage::output(const std::vector<std::pair<std::unique_ptr<Image>, Img
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     TTF_CloseFont(font);
+    IMG_Quit();
     TTF_Quit();
     SDL_Quit();
 
