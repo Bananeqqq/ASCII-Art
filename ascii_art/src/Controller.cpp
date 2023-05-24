@@ -23,7 +23,7 @@ void Controller::run()
 {
     if (!loadImages())
     {
-        std::cout << "Controller: Error while loading images" << std::endl;
+        std::cout << "Error while loading images." << std::endl;
         return;
     }
     applyFilters();
@@ -45,14 +45,13 @@ bool Controller::loadImages()
         }
         else
         {
-            std::cout << "Controller: Error while loading images" << std::endl;
             return false;
         }
         if (!images.back().first->load(img.image_path, img.invert))
         {
             return false;
         }
-        std::cout << "loaded: " << img.image_path << std::endl;
+        std::cout << "Loaded: " << img.image_path << std::endl;
     }
     return true;
 }
@@ -92,7 +91,7 @@ void Controller::convertToAscii()
     {
         if (image.second.scale < 0.0 || image.second.scale > 10.0)
         {
-            std::cout << "Invalid scale, using default: 1.0" << std::endl;
+            std::cout << "Invalid scale value, using default: 1.0" << std::endl;
             image.second.scale = 1.0;
         }
         image.first->imgToAscii(image.second.scale, image.second.charset, image.second.brightness);

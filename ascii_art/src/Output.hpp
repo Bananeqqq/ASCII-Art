@@ -28,7 +28,7 @@ public:
      * @brief Path to the font used for the presentation and image output
      * 
      */
-    const std::string FONT_PATH = "assets/CourierPrime.ttf";
+    const char* FONT_PATH = "assets/CourierPrime.ttf";
 };
 
 #endif // ASCII_ART_OUTPUT_HPP

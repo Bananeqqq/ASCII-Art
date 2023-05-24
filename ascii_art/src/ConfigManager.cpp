@@ -70,7 +70,7 @@ ConfigManager::ConfigManager(int argc, char *argv[]) : output_file_path(""), out
         {
             if (!std::filesystem::exists(arg))
             {
-                throw std::invalid_argument("CM constr: Image file does not exist.");
+                throw std::invalid_argument("Image file does not exist.");
             }
             current_img = Img();
             current_img.image_path = arg;
@@ -92,13 +92,12 @@ ConfigManager::ConfigManager(int argc, char *argv[]) : output_file_path(""), out
     }
 }
 
-bool ConfigManager::parseConfigFile(const std::string &cfg_path, Img &current_config)
+void ConfigManager::parseConfigFile(const std::string &cfg_path, Img &current_config)
 {
     std::ifstream config_file(cfg_path);
     if (!config_file.is_open())
     {
-        std::cout << "Error: Cannot open config file." << std::endl;
-        return false;
+        throw std::invalid_argument("Config file does not exist.");
     }
 
     std::string line;
@@ -134,7 +133,7 @@ bool ConfigManager::parseConfigFile(const std::string &cfg_path, Img &current_co
                     current_config.brightness += std::stod(value, &num);
                     if (num < value.size())
                     {
-                        throw std::invalid_argument("conversion");
+                        throw std::invalid_argument("Invalid brightness value.");
                     }
                 }
                 else if (key == "flip")
@@ -157,7 +156,7 @@ bool ConfigManager::parseConfigFile(const std::string &cfg_path, Img &current_co
                     current_config.rotate = ((current_config.rotate + std::stoi(value, &num)) % 360 + 360) % 360;
                     if (num < value.size())
                     {
-                        throw std::invalid_argument("conversion");
+                        throw std::invalid_argument("Invalid rotate value.");
                     }
                 }
                 else if (key == "invert")
@@ -173,7 +172,7 @@ bool ConfigManager::parseConfigFile(const std::string &cfg_path, Img &current_co
                     current_config.scale *= std::stod(value, &num);
                     if (num < value.size())
                     {
-                        throw std::invalid_argument("Error while converting scale.");
+                        throw std::invalid_argument("Invalid scale value.");
                     }
                 }
                 else if (key == "ascii")
@@ -181,18 +180,16 @@ bool ConfigManager::parseConfigFile(const std::string &cfg_path, Img &current_co
                     ascii_count++;
                     if (ascii_count > 1)
                     {
-                        throw std::invalid_argument("Multiple ascii values.");
+                        throw std::invalid_argument("Multiple ascii files.");
                     }
                     if (!std::filesystem::exists(value))
                     {
-                        std::cout << "CM config ascii not exists:" << value << ":x" << std::endl;
-                        throw std::invalid_argument("ascii");
+                        throw std::invalid_argument("Ascii file does not exist.");
                     }
                     std::ifstream charset_file(value);
                     if (!charset_file.is_open())
                     {
-                        std::cout << "Error: Unable to open charset file '" << value << "'." << std::endl;
-                        throw std::invalid_argument("ascii");
+                        throw std::invalid_argument("Unable to open charset (ascii) file.");
                     }
                     std::getline(charset_file, current_config.charset);
                     charset_file.close();
@@ -212,13 +209,11 @@ bool ConfigManager::parseConfigFile(const std::string &cfg_path, Img &current_co
             }
             else
             {
-                throw std::invalid_argument("No value for config key.");
+                throw std::invalid_argument("No value for some config key.");
             }
         }
     }
-
     config_file.close();
-    return true;
 }
 
 void ConfigManager::parseCommandLine()
@@ -245,23 +240,21 @@ void ConfigManager::parseCommandLine()
 void ConfigManager::checkArgs(Img &current_config, size_t min, size_t max)
 {
     for (size_t i = min; i < max; i++)
-    { // specific image config
+    {
         size_t num;
         if (args[i] == "--conf")
         {
             if (i + 1 >= max)
             {
-                throw std::invalid_argument("CM checkArgs: No config file path provided.");
+                throw std::invalid_argument("No config file path provided.");
             }
             std::string cfg_path(args[i + 1]);
             if (!std::filesystem::exists(cfg_path))
             {
-                throw std::invalid_argument("CM checkArgs: Config file does not exist.");
+                throw std::invalid_argument("Config file does not exist.");
             }
-            if (!parseConfigFile(cfg_path, current_config))
-            {
-                throw std::invalid_argument("CM checkArgs: Config file parsing failed.");
-            }
+            parseConfigFile(cfg_path, current_config);
+
             ++i;
             continue;
         }
@@ -269,12 +262,12 @@ void ConfigManager::checkArgs(Img &current_config, size_t min, size_t max)
         {
             if (i + 1 >= max)
             {
-                throw std::invalid_argument("CM checkArgs: No charset file path provided.");
+                throw std::invalid_argument("No charset file path provided.");
             }
             std::ifstream charset_file(args[i + 1]);
             if (!charset_file.is_open())
             {
-                throw std::invalid_argument("CM checkArgs: Unable to open charset file.");
+                throw std::invalid_argument("Unable to open charset (ascii) file.");
             }
             std::getline(charset_file, current_config.charset);
             charset_file.close();
@@ -285,12 +278,12 @@ void ConfigManager::checkArgs(Img &current_config, size_t min, size_t max)
         {
             if (i + 1 >= max)
             {
-                throw std::invalid_argument("CM checkArgs: No brightness value provided.");
+                throw std::invalid_argument("No brightness value provided.");
             }
             current_config.brightness += std::stod(args[i + 1], &num);
             if (num < args[i + 1].size())
             {
-                throw std::invalid_argument("brightness conversion");
+                throw std::invalid_argument("Invalid brightness value.");
             }
             ++i;
             continue;
@@ -299,12 +292,12 @@ void ConfigManager::checkArgs(Img &current_config, size_t min, size_t max)
         {
             if (i + 1 >= max)
             {
-                throw std::invalid_argument("CM checkArgs: No scale value provided.");
+                throw std::invalid_argument("No scale value provided.");
             }
             double scale_value = std::stod(args[i + 1], &num);
             if (num < args[i + 1].size())
             {
-                throw std::invalid_argument("Error while converting scale.");
+                throw std::invalid_argument("Invalid scale value.");
             }
             current_config.scale *= scale_value;
             ++i;
@@ -318,12 +311,12 @@ void ConfigManager::checkArgs(Img &current_config, size_t min, size_t max)
         {
             if (i + 1 >= max)
             {
-                throw std::invalid_argument("Error: No rotate value provided.");
+                throw std::invalid_argument("No rotate value provided.");
             }
             current_config.rotate = ((current_config.rotate + std::stoi(args[i + 1], &num)) % 360 + 360) % 360;
             if (num < args[i + 1].size())
             {
-                throw std::invalid_argument("Error while converting rotate.");
+                throw std::invalid_argument("Invalid rotate value.");
             }
             ++i;
             continue;
@@ -342,7 +335,7 @@ void ConfigManager::checkArgs(Img &current_config, size_t min, size_t max)
         }
         else
         {
-            throw std::invalid_argument("Error: Invalid argument: " + args[i]);
+            throw std::invalid_argument("Invalid argument: " + args[i]);
         }
     }
 }

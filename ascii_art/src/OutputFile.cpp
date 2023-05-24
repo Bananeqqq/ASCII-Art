@@ -8,7 +8,6 @@ bool OutputFile::output(const std::vector<std::pair<std::unique_ptr<Image>, Img>
 
     if (!file.is_open())
     {
-        std::cout << "Failed to open the file." << std::endl;
         return false;
     }
 

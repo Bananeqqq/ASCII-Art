@@ -48,9 +48,8 @@ private:
      * @brief Parses the config file
      * @param cfg_path path to the config file
      * @param img Img object to store the parsed configurations
-     * @return true if the config file was parsed successfully
      */
-    bool parseConfigFile(const std::string &cfg_path, Img &current_config);
+    void parseConfigFile(const std::string &cfg_path, Img &current_config);
 
     /**
      * @brief Parses the command line arguments within bounds [min, max] for the current image.

@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     {
         if (e.what() == std::string("stoi") || e.what() == std::string("stod"))
         {
-            std::cout << "Error while parsing operation arguments" << std::endl;
+            std::cout << "Incorrect operation value." << std::endl;
         }
         else
         {

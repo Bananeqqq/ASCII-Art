@@ -12,7 +12,7 @@ void Image::imgToAscii(const double scaleFactor, const std::string charset, doub
 
     if (data.size() < width * height)
     {
-        std::cout << "Image: Error while converting to ascii" << std::endl;
+        std::cout << "Error while converting image to ascii art." << std::endl;
         return;
     }
 
@@ -52,19 +52,10 @@ SDL_Texture *Image::createTexture(SDL_Renderer *renderer, TTF_Font *font, int fo
     while (std::getline(ss, line))
     {
         SDL_Surface *surface = TTF_RenderText_Blended(font, line.c_str(), textColor);
-
-        if (surface == nullptr)
-        {
-            std::cout << "Error creating text surface: " << TTF_GetError() << std::endl;
-        }
         surfaces.push_back(surface);
     }
 
     SDL_Texture *full_image = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET, full_width, full_height);
-    if (full_image == nullptr)
-    {
-        std::cout << "Error creating full image texture: " << SDL_GetError() << std::endl;
-    }
 
     SDL_SetRenderTarget(renderer, full_image);
     SDL_SetTextureBlendMode(full_image, SDL_BLENDMODE_BLEND);
