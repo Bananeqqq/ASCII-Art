@@ -42,9 +42,33 @@ bool OutputImage::output(const std::vector<std::pair<std::unique_ptr<Image>, Img
         TTF_CloseFont(font);
         font = TTF_OpenFont(FONT_PATH, font_size);
 
+        if (!window || !renderer || !font)
+        {
+            if (font)
+            {
+                TTF_CloseFont(font);
+            }
+
+            if (renderer)
+            {
+                SDL_DestroyRenderer(renderer);
+            }
+
+            if (window)
+            {
+                SDL_DestroyWindow(window);
+            }
+
+            IMG_Quit();
+            TTF_Quit();
+            SDL_Quit();
+            return false;
+        }
+
         SDL_RenderClear(renderer);
         SDL_Texture *texture = image.first->createTexture(renderer, font, font_size, image.second.scale);
-        if (!window || !renderer || !font || texture == nullptr)
+
+        if (!texture)
         {
             TTF_CloseFont(font);
             SDL_DestroyRenderer(renderer);

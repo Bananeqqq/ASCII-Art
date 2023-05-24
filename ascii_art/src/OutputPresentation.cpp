@@ -32,9 +32,21 @@ bool OutputPresentation::output(const std::vector<std::pair<std::unique_ptr<Imag
 
     if (!window || !renderer || !font)
     {
-        TTF_CloseFont(font);
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
+        if (font)
+        {
+            TTF_CloseFont(font);
+        }
+
+        if (renderer)
+        {
+            SDL_DestroyRenderer(renderer);
+        }
+
+        if (window)
+        {
+            SDL_DestroyWindow(window);
+        }
+
         TTF_Quit();
         SDL_Quit();
         return false;
@@ -51,13 +63,13 @@ bool OutputPresentation::output(const std::vector<std::pair<std::unique_ptr<Imag
             font_size = std::max(1.0, std::min(15.0 * image.second.scale, max_f_size));
         }
 
+        // Due to old ProgTest library version, I am unable to use TTF_SetFontSize
         TTF_CloseFont(font);
         font = TTF_OpenFont(FONT_PATH, font_size);
 
         SDL_Texture *texture = image.first->createTexture(renderer, font, font_size, image.second.scale);
         if (texture == nullptr)
         {
-            std::cerr << "Texture could not be created! SDL_Error: " << SDL_GetError() << std::endl;
             TTF_CloseFont(font);
             SDL_DestroyRenderer(renderer);
             SDL_DestroyWindow(window);
@@ -88,7 +100,7 @@ bool OutputPresentation::output(const std::vector<std::pair<std::unique_ptr<Imag
     int offsetX = 0, offsetY = 0, current_texture_idx = 0;
     SDL_Texture *texture = textures[0];
 
-    bool mouseDown = false, quit = false, is_autoplay = false; // dat true potom
+    bool mouseDown = false, quit = false, is_autoplay = false;
     Uint32 start_time = SDL_GetTicks();
     Uint32 delay = 3000; // 3s
 
