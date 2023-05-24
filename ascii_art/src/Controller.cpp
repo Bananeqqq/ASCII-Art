@@ -10,18 +10,19 @@
 #include "FilterRotate.hpp"
 
 Controller::Controller(int argc, char *argv[])
-    try : config(argc, argv) {
-        config.parseCommandLine();
+try : config(argc, argv)
+{
+    config.parseCommandLine();
+    run();
+}
+catch (std::exception &e)
+{
+}
 
-        std::cout << "----Controlleros----" << std::endl;
-        run();
-    }
-    catch (std::exception &e) {
-    }
-
-
-void Controller::run() {
-    if (!loadImages()){
+void Controller::run()
+{
+    if (!loadImages())
+    {
         std::cout << "Controller: Error while loading images" << std::endl;
         return;
     }
@@ -30,56 +31,67 @@ void Controller::run() {
     outputImages();
 }
 
-
-bool Controller::loadImages() {
-    for (auto &img : config.getImages()){
-        if (img.image_path.find(".png") != std::string::npos){
+bool Controller::loadImages()
+{
+    for (auto &img : config.getImages())
+    {
+        if (img.image_path.find(".png") != std::string::npos)
+        {
             images.emplace_back(std::make_unique<ImagePNG>(), img);
         }
-        else if (img.image_path.find(".jpg") != std::string::npos){
+        else if (img.image_path.find(".jpg") != std::string::npos)
+        {
             images.emplace_back(std::make_unique<ImageJPG>(), img);
         }
-        else {
+        else
+        {
             std::cout << "Controller: Error while loading images" << std::endl;
             return false;
         }
-        images.back().first->load(img.image_path, img.invert);
+        if (!images.back().first->load(img.image_path, img.invert))
+        {
+            return false;
+        }
         std::cout << "loaded: " << img.image_path << std::endl;
     }
     return true;
 }
 
-void Controller::applyFilters() {
-    std::vector<Filter*> filters;
-    for (auto &image : images) {
+void Controller::applyFilters()
+{
+    std::vector<Filter *> filters;
+    for (auto &image : images)
+    {
 
-        if (image.second.rotate) {
+        if (image.second.rotate)
+        {
             filters.push_back(new FilterRotate());
         }
 
-        if (image.second.flip_horizontal || image.second.flip_vertical) {
+        if (image.second.flip_horizontal || image.second.flip_vertical)
+        {
             filters.push_back(new FilterFlip());
         }
 
-        for (Filter* filter : filters) {
+        for (Filter *filter : filters)
+        {
             filter->apply(image);
         }
 
-        for (Filter* filter : filters) {
+        for (Filter *filter : filters)
+        {
             delete filter;
         }
         filters.clear();
     }
 }
 
-
-void Controller::convertToAscii() {
-    for (auto &image : images){
-        if (image.second.charset.empty()){
-            image.second.charset = " .'`^,:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
-            std::cout << "No charset specified, using default: \"" << image.second.charset << "\""<< std::endl;
-        }
-        if (image.second.scale < 0.0 || image.second.scale > 10.0){
+void Controller::convertToAscii()
+{
+    for (auto &image : images)
+    {
+        if (image.second.scale < 0.0 || image.second.scale > 10.0)
+        {
             std::cout << "Invalid scale, using default: 1.0" << std::endl;
             image.second.scale = 1.0;
         }
@@ -87,35 +99,42 @@ void Controller::convertToAscii() {
     }
 }
 
-
-void Controller::outputImages() {
+void Controller::outputImages()
+{
     std::string out = config.getOutputType();
     std::unique_ptr<Output> output;
 
-    if (out == "screen") {
+    if (out == "screen")
+    {
         output = std::make_unique<OutputPresentation>();
     }
-    else if (out == "file") {
+    else if (out == "file")
+    {
         output = std::make_unique<OutputFile>();
     }
-    else if (out == "console"){
-        for (auto &image : images) {
+    else if (out == "console")
+    {
+        for (auto &image : images)
+        {
             std::cout << image.first->ascii_image << std::endl;
         }
     }
-    else if (out == "image"){
+    else if (out == "image")
+    {
         output = std::make_unique<OutputImage>();
     }
-    else {
-        std::cout << "Controller: Error while outputting images, output type not found." << std::endl;
+    else
+    {
+        std::cout << "Error while outputting images, output type not found." << std::endl;
         return;
     }
 
-
-    if (output) {
+    if (output)
+    {
         bool o = output->output(images, config.getOutputPath());
-        if (!o) {
-            std::cout << "Controller: Error while outputting images" << std::endl;
+        if (!o)
+        {
+            std::cout << "Error while outputting images, output did not succeed." << std::endl;
             return;
         }
     }

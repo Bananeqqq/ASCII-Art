@@ -5,11 +5,11 @@
 /**
  * @brief Class for loading JPG images
  */
-class ImageJPG : public Image {
+class ImageJPG : public Image
+{
 public:
     ImageJPG(int width = 0, int height = 0) : Image(width, height) {}
-    bool load(const std::string& filename, bool inverted) override;
+    bool load(const std::string &filename, bool inverted) override;
 };
 
-
-#endif //ASCII_ART_IMAGEJPG_HPP
+#endif // ASCII_ART_IMAGEJPG_HPP

@@ -12,9 +12,11 @@
  * @details This class is used to load the image from the given path, convert it to ascii and optionally create a texture from it.
  * Derived classes are ImagePNG and ImageJPG and they must implement the load method.
  */
-class Image {
+class Image
+{
 public:
-    Image(unsigned int width, unsigned int height) : width(width), height(height) {
+    Image(unsigned int width, unsigned int height) : width(width), height(height)
+    {
         ascii_image = "";
     }
     virtual ~Image() = default;
@@ -25,7 +27,7 @@ public:
      * @param inverted Whether to invert the image or not
      * @return true if the image was loaded successfully
      */
-    virtual bool load(const std::string& filename, bool inverted) = 0;
+    virtual bool load(const std::string &filename, bool inverted) = 0;
 
     /**
      * @brief Convert the image to ascii and save it to the ascii_image string
@@ -35,7 +37,6 @@ public:
      */
     void imgToAscii(const double scaleFactor, const std::string charset, double brightness);
 
-
     /**
      * @brief Create a texture from the ascii image which can be rendered to the screen or saved to a png file
      * @param renderer Pointer to the SDL_Renderer object which will be used to create the SDL_Texture
@@ -44,7 +45,7 @@ public:
      * @param scale The scaling factor to apply to the texture
      * @return SDL_Texture* Newly created SDL_Texture object from the ascii string
      */
-    SDL_Texture* createTexture(SDL_Renderer* renderer, TTF_Font* font, int font_size, double scale) const;
+    SDL_Texture *createTexture(SDL_Renderer *renderer, TTF_Font *font, int font_size, double scale) const;
 
     unsigned int width;
     unsigned int height;
@@ -60,5 +61,4 @@ public:
     std::string ascii_image;
 };
 
-
-#endif //ASCII_ART_IMAGE_HPP
+#endif // ASCII_ART_IMAGE_HPP

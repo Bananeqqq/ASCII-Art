@@ -11,7 +11,8 @@
  * @details This class is used to output the images to the console, to a file or to a presentation.
  * Derived classes are OutputFile, OutputImage and OutputPresentation and they must implement the output method
  */
-class Output {
+class Output
+{
 public:
     virtual ~Output() = default;
 
@@ -22,7 +23,12 @@ public:
      * @return True if output was successful, false otherwise
      */
     virtual bool output(const std::vector<std::pair<std::unique_ptr<Image>, Img>> &images, std::string path = "") const = 0;
+    
+    /**
+     * @brief Path to the font used for the presentation and image output
+     * 
+     */
+    const std::string FONT_PATH = "assets/CourierPrime.ttf";
 };
 
-
-#endif //ASCII_ART_OUTPUT_HPP
+#endif // ASCII_ART_OUTPUT_HPP

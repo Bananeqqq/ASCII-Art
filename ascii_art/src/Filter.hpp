@@ -7,9 +7,9 @@
 /**
  * @brief Abstract class for filters
  */
-class Filter {
+class Filter
+{
 public:
-
     /**
      * @brief Virtual destructor
      */
@@ -20,8 +20,6 @@ public:
      * @param image Image to apply filter to
      */
     virtual void apply(std::pair<std::unique_ptr<Image>, Img> &image) = 0;
-
 };
 
-
-#endif //ASCII_ART_FILTER_HPP
+#endif // ASCII_ART_FILTER_HPP

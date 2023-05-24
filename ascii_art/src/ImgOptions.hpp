@@ -6,9 +6,10 @@
 /**
  * @brief Struct for storing the configuration of an image
  */
-struct Img {
+struct Img
+{
     std::string image_path;
-    std::string charset;
+    std::string charset = " .'`^,:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
     double brightness = 2;
     double scale = 1.0;
     bool invert = false;
@@ -17,4 +18,4 @@ struct Img {
     bool flip_vertical = false;
     bool fancy = false;
 };
-#endif //ASCII_ART_IMGOPTIONS_HPP
+#endif // ASCII_ART_IMGOPTIONS_HPP

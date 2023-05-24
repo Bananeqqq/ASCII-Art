@@ -8,16 +8,15 @@
 /**
  * @brief Controller class that handles the flow of the program
  */
-class Controller {
+class Controller
+{
 public:
-
     /**
      * @brief Construct a new Controller object and initialize the ConfigManager
      * @param argc The number of arguments passed to the program
      * @param argv The arguments passed to the program
      */
     Controller(int argc, char *argv[]);
-
 
     /**
      * @brief Run the program - load images, apply filters, convert to ascii, and output images
@@ -57,5 +56,4 @@ private:
     std::vector<std::pair<std::unique_ptr<Image>, Img>> images;
 };
 
-
-#endif //ASCII_ART_CONTROLLER_HPP
+#endif // ASCII_ART_CONTROLLER_HPP

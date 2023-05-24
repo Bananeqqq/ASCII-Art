@@ -1,14 +1,24 @@
 #include "Controller.hpp"
 #include <iostream>
 
+int main(int argc, char *argv[])
+{
 
-int main(int argc, char *argv[]) {
-
-    try {
+    try
+    {
         Controller controller(argc, argv);
     }
-    catch (std::exception &e){
-        std::cout << "Main, error: " << e.what() << std::endl;
+    catch (std::exception &e)
+    {
+        if (e.what() == std::string("stoi") || e.what() == std::string("stod"))
+        {
+            std::cout << "Error while parsing operation arguments" << std::endl;
+        }
+        else
+        {
+            std::cout << e.what() << std::endl;
+        }
+        return 1;
     }
 
     return 0;

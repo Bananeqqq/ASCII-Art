@@ -9,7 +9,8 @@
  * @brief Class for managing the configuration of the program
  */
 
-class ConfigManager {
+class ConfigManager
+{
 public:
     /**
      * @brief Constructor for the ConfigManager class, saves the command line arguments and meanwhile saves the index of the images and parses output option
@@ -19,12 +20,10 @@ public:
      */
     ConfigManager(int agrc, char *argv[]);
 
-
     /**
      * @brief Parses the command line arguments
      */
     void parseCommandLine();
-
 
     /**
      * @brief Get file output path
@@ -32,13 +31,11 @@ public:
      */
     std::string getOutputPath() const;
 
-
     /**
      * @brief get vector of configurations for images
      * @return std::vector<Img> vector of configurations for images
      */
     std::vector<Img> getImages() const;
-
 
     /**
      * @brief get output option type
@@ -47,7 +44,6 @@ public:
     std::string getOutputType() const;
 
 private:
-
     /**
      * @brief Parses the config file
      * @param cfg_path path to the config file
@@ -55,7 +51,6 @@ private:
      * @return true if the config file was parsed successfully
      */
     bool parseConfigFile(const std::string &cfg_path, Img &current_config);
-
 
     /**
      * @brief Parses the command line arguments within bounds [min, max] for the current image.
@@ -65,8 +60,7 @@ private:
      * @param min index of the first argument for the current image
      * @param max index of the last argument for the current image
      */
-    void checkArgs(Img& current_config, size_t min, size_t max);
-
+    void checkArgs(Img &current_config, size_t min, size_t max);
 
     /**
      * @brief stores the configuration of images
@@ -103,13 +97,10 @@ private:
      */
     bool output_image;
 
-
     /**
      * @brief stores the index of the images in the command line arguments
      */
     std::vector<size_t> image_positions;
-
 };
 
-
-#endif //ASCII_ART_CONFIGMANAGER_HPP
+#endif // ASCII_ART_CONFIGMANAGER_HPP
