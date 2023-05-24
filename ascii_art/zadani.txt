@@ -1,0 +1,95 @@
+/**
+\mainpage ASCII-Art generator
+
+## Zadání
+
+1) Nástroj načítá obrázky v alespoň jednom běžném souborovém formátu. (př. BMP, PNG, JPEG, SVG, …)\n 
+2) Implementujte alespoň 5 druhů různých operací (př. změna jasu, negativ, konvoluce, změna velikosti obrázku, …) \n
+3) Výstupem nástroje je ASCII art (textové odstíny šedi) vytvořený z obrázků, který umí zobrazit a uložit do souboru. \n
+4) Nástroj musí být konfigurovatelný ze souboru: \n
+    - Definice ASCII přechodů (př. název, znaky seřazené dle hustoty, …)
+    - Definice aplikovaných filtrů (jeden filtr může být aplikován víckrát s různými parametry)
+5) V případě více předaných obrázků:
+    - Nástroj spustí prezentaci jednotlivých snímků, kterou lze ovládat (alespoň změna snímku, zastavení prezentace, spuštění prezentace).
+    - Lze definovat filtry pro jednotlivé obrázky i pro celou množinu.
+
+
+
+                                              _.oo.
+                      _.u[[/;:,.         .odMMMMMM'
+                   .o888UU[[[/;:-.  .o@P^    MMM^
+                  oN88888UU[[[/;::-.        dP^
+                 dNMMNN888UU[[[/;:--.   .o@P^
+               ,MMMMMMN888UU[[/;::-. o@^
+                NNMMMNN888UU[[[/~.o@P^
+                888888888UU[[[/o@^-..
+               oI8888UU[[[/o@P^:--..
+            .@^  YUU[[[/o@^;::---..
+          oMP     ^/o@P^;:::---..
+       .dMMM    .o@^ ^;::---…
+      dMMMMMMM@^`       `^^^^
+     YMMMUP^
+      ^^
+## Jak například spustit tento nástroj:
+make clean  \n
+make (compile)  \n
+./zemladan --conf cfg.config img_path1 --output_type possible_anotherImg1 possible_anotherImg2  \n
+
+./zemladan img_path1 --screen --ascii custom.ascii --invert --invert --brightness 0 IMAGE2 --ascii custom2.ascii --brightness -1 IMAGE2 --ascii custom3.ascii --brightness +3 --invert  \n
+
+
+### Upřesnění:
+Filtry (operace) zadané jako args nebo jako config je možné definovat globálně (pro všechny obrázky) a nebo pro každý obrázek zvlášť. Pokud chceme definovat filtry/config globálně, je nutné, aby byly definovány před prvním obrázkem. \n
+
+
+#### Je možné načítat obrázky PNG a JPG, kde uživatel může:
+1) Změnit velikost obrázku pomocí parametru "scale" (tedy 1 default, 0-1 zmenšení a 1-10 zvětšení, 10 je limit) \n
+2) Změnit "jas" obrázku pomocí parametru "brightness" (2 default v kódu, minimum je 0, s menší hodnotou je obrázek světlejší a s větší hodnotou je obrázek tmavší) \n
+3) Invertovat obrázek pomocí parametru "invert" (false default, true invert) \n
+4) Rotovat obrázek pomocí parametru "rotate" (0 default, 90, 180, 270) \n
+5) Vertical/horizonotal flip obrázeku pomocí parametru "flip" \n \n
+
+Tyto filtry je možné aplikovat libovolně mnohokrát, v libovolném pořadí a libovolně na jednotlivé obrázky či na všechny najednou. \n
+
+#### Obrázky je možné zobrazit 4 způsoby:
+1) Všechny vykreslit do terminálu v ascii artu (--console) \n
+2) Uložit všechny do jednoho textového souboru (--file file_name) \n
+3) Zobrazit je v okně, kde je možné mezi nimi procházet šipkama, zoomovat a "pohybovat se", a pomocí mezerníku spustit/zastavit "prezentaci" (--screen) \n
+4) Uložit je do obrázku, který se uloží tam, odkud byl obrázek načten (--image) \n \n
+
+Je možné zvolit pouze jednu metodu výstupu, je nutné ji zadat jako argument (tedy ne v config souboru). \n
+
+Následně u --screen a --image je možné použít argument --fancy, aby se obrázek vykreslil s co největším písmem (není vhodné praktikovat na slabším pc s více obrázky). \n
+Mimo tyto filtry je možné definovat ascii přechod (**musí** být v souboru), který se použije pro vykreslení obrázku. \n \n
+
+#### Syntaxe argumentů je:
+--ascii file_with_ascii_chars \n
+--conf file_name \n
+--brightness number \n
+--invert \n
+--scale number \n
+--rotate number \n
+--flip-horizontal \n
+--flip-vertical \n
+--fancy \n \n
+
+#### Syntaxe configu je:
+ascii=custom.ascii \n
+scale=1 \n
+invert=false \n
+brightness=0 \n
+flip=horizontal \n
+flip=vertical \n
+rotate=90 \n
+fancy=true \n
+
+
+#### Polymorfimus:
+Je využit při: \n
+1) Loadování obrázků (base class Image), kdy následně v ImagePNG a ImageJPG overriduji virtualni metodu "load".  \n
+2) Aplikování filtrů, (base class Filter), kdy overiduji virtualni metodu "apply" \n
+3) Výstup ascii artu, (base class Output), kdy overiduji virtualni metodu "output" \n
+Následně je to využit ve třídě Controller metody loadImages(), applyFilters(), outputImages(). \n
+Pomůže v tom, že je jednoduché přidat následně další typ obrázku, filtru či výstupu. \n
+
+*/
