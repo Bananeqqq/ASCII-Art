@@ -29,6 +29,7 @@ Nástroj, který na vstupu získá obrázek nebo sadu několika obrázků a pře
       dMMMMMMM@^`       `^^^^
      YMMMUP^
       ^^
+
 ## Jak například spustit tento nástroj:
 make clean  
 make (compile)  
@@ -58,29 +59,29 @@ Tyto filtry je možné aplikovat libovolně mnohokrát, v libovolném pořadí a
 
 **Je možné zvolit pouze jednu metodu výstupu**, je nutné ji zadat jako argument (tedy ne v config souboru) 
 
-Následně u --screen a --image je možné použít argument --fancy, aby se obrázek vykreslil s co největším písmem (není vhodné praktikovat na slabším pc s více obrázky). 
-Mimo tyto filtry je možné definovat ascii přechod (**musí** být v souboru), který se použije pro vykreslení obrázku.  
+Následně u --screen a --image je možné použít argument --fancy, aby se obrázek vykreslil s co největším písmem (není vhodné praktikovat na slabším pc s více obrázky).  
+Mimo tyto filtry je možné definovat ascii přechod (**musí** být v souboru), který se použije pro vykreslení obrázku.   
 
-**Syntaxe argumentů je:** 
---ascii file_with_ascii_chars 
---conf file_name 
---brightness number 
---invert 
---scale number 
---rotate number 
---flip-horizontal 
---flip-vertical 
---fancy  
+**Syntaxe argumentů je:**  
+--ascii file_with_ascii_chars  
+--conf file_name  
+--brightness number  
+--invert  
+--scale number  
+--rotate number  
+--flip-horizontal  
+--flip-vertical  
+--fancy   
 
-**Syntaxe configu je:** 
-ascii=custom.ascii 
-scale=1 
-invert=false 
-brightness=0 
-flip=horizontal 
-flip=vertical 
-rotate=90 
-fancy=true 
+**Syntaxe configu je:**  
+ascii=custom.ascii  
+scale=1   
+invert=false  
+brightness=0  
+flip=horizontal  
+flip=vertical  
+rotate=90  
+fancy=true  
 
 
 #### Polymorfimus:
