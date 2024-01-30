@@ -10,7 +10,7 @@ BUILD_DIR := obj
 
 SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
 OBJECTS := $(SOURCES:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
-EXECUTABLE := zemladan
+EXECUTABLE := app
 TEST_SCRIPT := assets/test.sh
 
 
