@@ -33,9 +33,9 @@ Nástroj, který na vstupu získá obrázek nebo sadu několika obrázků a pře
 ## Jak například spustit tento nástroj:
 make clean  
 make (compile)  
-./zemladan --conf cfg.config img_path1 --output_type possible_anotherImg1 possible_anotherImg2  
+./app --conf cfg.config img_path1 --output_type possible_anotherImg1 possible_anotherImg2  
 
-./zemladan --screen --fancy examples2/space/5.jpg
+./app --screen --fancy examples2/space/5.jpg
 
 
 ### Upřesnění:
